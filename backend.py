@@ -19,8 +19,10 @@ def simulate(qc):
     return getsimresult(job)
 
 
-def quantumcompute(qc, backend):
-    pm = generate_preset_pass_manager(backend=backend, optimization_level=1)
+def quantumcompute(qc, backend="ibm_kyiv"):
+    service = QiskitRuntimeService()
+    computer = service.backend(backend)
+    pm = generate_preset_pass_manager(backend=computer, optimization_level=1)
     compiled = pm.run(qc)
     print(compiled.draw())
     sampler = SamplerV2(backend)
@@ -40,16 +42,22 @@ def seejobresults(id):
     counts = data.get_counts()
     return counts
 
-
+def isbinary(string):
+    for i in string:
+          if i not in '01':
+               return False
+    return True
 
 def tobinstring(countdict):
-     print(countdict)
      new = {}
      keys = list(countdict.keys())
-     try:
-         base = {'x':16,'b':2}[keys[0][1]]
-     except KeyError:
-         print("Warning: Invalid entry dictionary. Sample entry:",keys[0][1])
+     base = 10
+     if keys[0][1] == 'x':
+            base = 16
+     elif isbinary(keys[0]):
+          base = 2
+     else:
+         print("Warning: Invalid entry dictionary. Sample entry:",keys[0])
          print("Returning input unchanged")
          return countdict
      ints = list(map(lambda x:int(x,base), keys))
