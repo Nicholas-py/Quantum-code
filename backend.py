@@ -1,8 +1,8 @@
 from qiskit_aer import AerSimulator, AerJob
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2
+from qiskit_ibm_runtime.exceptions import RuntimeJobTimeoutError
 from math import log, ceil
-
 
 def getsimresult(job):
         result = job.result(5) #a Result object
@@ -24,7 +24,7 @@ def saveid(job):
      file.write(id)
      file.close()
 
-def quantumcompute(qc, backendname="ibm_kyiv"):
+def quantumcompute(qc, backendname="ibm_brisbane"):
     #Set up service and backend (This part only needs to be run once if doing multiple runs)
     service = QiskitRuntimeService()
     backend = service.backend(backendname)
@@ -48,7 +48,11 @@ def quantumcompute(qc, backendname="ibm_kyiv"):
 def seejobresults(id):
     service = QiskitRuntimeService()
     job = service.job(id)
-    result = job.result(5)
+    try:
+        result = job.result(5)
+    except RuntimeJobTimeoutError:
+         print("Results not ready yet")
+         return
     data = result[0].data.c
     counts = data.get_counts()
     return counts
@@ -83,6 +87,8 @@ def tobinstring(countdict):
 
 
 def printcounts(counts, threshold = True):
+    if not counts:
+         return
     bins = tobinstring(counts)
     hasprinted = False
     for i in bins:
