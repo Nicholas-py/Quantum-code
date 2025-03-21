@@ -1,8 +1,14 @@
-from qiskit_aer import AerSimulator, AerJob
+from qiskit_aer import AerSimulator
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2
 from qiskit_ibm_runtime.exceptions import RuntimeJobTimeoutError
 from math import log, ceil
+
+def simulate(qc):
+    job = AerSimulator().run(qc) #a AerJob object
+
+    return getsimresult(job)
+
 
 def getsimresult(job):
         result = job.result(5) #a Result object
@@ -13,16 +19,13 @@ def getsimresult(job):
         return counts
 
 
-def simulate(qc):
-    job = AerSimulator().run(qc) #a AerJob object
-
-    return getsimresult(job)
 
 def saveid(job):
      id = job.job_id()
      file = open('LastJobId.txt','w+')
      file.write(id)
      file.close()
+
 
 def quantumcompute(qc, backendname="ibm_brisbane"):
     #Set up service and backend (This part only needs to be run once if doing multiple runs)
@@ -39,9 +42,16 @@ def quantumcompute(qc, backendname="ibm_brisbane"):
     job = sampler.run([compiled])
     
     #Okay, you should be able to figure this out
+    print("Your job has been submitted to the cloud")
     print("Find id on the ibm website, job id",job.job_id())
     saveid(job)
     print("Then, plug it into the seejobresults(id) function")
+    print("This is automated by running viewjobresults.py")
+
+
+
+
+
 
 
 
@@ -56,6 +66,10 @@ def seejobresults(id):
     data = result[0].data.c
     counts = data.get_counts()
     return counts
+
+
+
+
 
 def isbinary(string):
     for i in string:
