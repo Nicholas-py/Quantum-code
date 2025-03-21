@@ -18,26 +18,37 @@ def simulate(qc):
 
     return getsimresult(job)
 
+def saveid(job):
+     id = job.job_id()
+     file = open('LastJobId.txt','w+')
+     file.write(id)
+     file.close()
 
-def quantumcompute(qc, backend="ibm_kyiv"):
+def quantumcompute(qc, backendname="ibm_kyiv"):
+    #Set up service and backend (This part only needs to be run once if doing multiple runs)
     service = QiskitRuntimeService()
-    computer = service.backend(backend)
-    pm = generate_preset_pass_manager(backend=computer, optimization_level=1)
+    backend = service.backend(backendname)
+
+    #Compile your circuit - can dramatically increase gate counts
+    pm = generate_preset_pass_manager(backend=backend, optimization_level=1)
     compiled = pm.run(qc)
     print(compiled.draw())
+
+    #Actually run the circuit, use Sampler to get the measurement results
     sampler = SamplerV2(backend)
     job = sampler.run([compiled])
     
+    #Okay, you should be able to figure this out
     print("Find id on the ibm website, job id",job.job_id())
+    saveid(job)
     print("Then, plug it into the seejobresults(id) function")
 
-    return
 
 
 def seejobresults(id):
     service = QiskitRuntimeService()
     job = service.job(id)
-    result = job.result()
+    result = job.result(5)
     data = result[0].data.c
     counts = data.get_counts()
     return counts
