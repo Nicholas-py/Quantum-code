@@ -22,7 +22,7 @@ def getsimresult(job):
 
 def saveid(job):
      id = job.job_id()
-     file = open('LastJobId.txt','w+')
+     file = open('LastJobId.txt','a+')
      file.write(id)
      file.close()
 
