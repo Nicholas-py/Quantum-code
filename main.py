@@ -1,17 +1,18 @@
 from qiskit import QuantumCircuit, ClassicalRegister
-from backend import simulate, seejobresults, printcounts, quantumcompute 
+from backend import simulate, printcounts, measureall
+from math import tau
 
 
 
-step=4
-n = 6
-qc = QuantumCircuit(step*(n+1),step*(n+1))
-qc.h(0)
-for i in range(0,step*n,step):
-     qc.cx(i,i+step)
+qc = QuantumCircuit(3,3)
+qc.x(0)
+qc.h(2)
+qc.ry(-tau/8,1)
+qc.cz(2,1)
+qc.ry(tau/8,1)
+qc.z(2)
+qc.sdg(1)
+qc.ecr(2,1)
 
-for i in range(0,step*n+1,step):
-    qc.measure(i,i)
-
-
+measureall(qc)
 printcounts(simulate(qc))

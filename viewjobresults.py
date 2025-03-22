@@ -3,7 +3,10 @@ import matplotlib.pyplot as plt
 
 print('Loading...')
 id = open('LastJobId.txt').read().split('\n')[-1]
-lastresults = seejobresults(id)
+try:
+    lastresults = seejobresults(id)
+except KeyError:
+    lastresults = seejobresults(input("Enter an id: "))
 
 def listresults():
     printcounts(lastresults)

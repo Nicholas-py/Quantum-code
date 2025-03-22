@@ -3,7 +3,7 @@ from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2
 from qiskit_ibm_runtime.exceptions import RuntimeJobTimeoutError
 from math import log, ceil
-
+from qiskit import QuantumCircuit
 def simulate(qc):
     job = AerSimulator().run(qc) #a AerJob object
 
@@ -14,18 +14,21 @@ def getsimresult(job):
         result = job.result(5) #a Result object
         results = result.results #a list of ExperimentResults
         myresult = results[0] #Just one ExperimentResult
-        data = myresult.data #an ExperimentResultData 
-        counts = data.counts #A dictionary, string:int - string is output state, int is number of times that returned
+        data = myresult.data #an ExperimentResultData
+        try:
+            counts = data.counts #A dictionary, string:int - string is output state, int is number of times that returned
+        except AttributeError:
+             print("No counts returned. Did you remember to measure your circuit? ")
+             return
         return counts
 
 
 
 def saveid(job):
      id = job.job_id()
-     file = open('LastJobId.txt','a+')
-     file.write(id)
+     file = open('LastJobId.txt','a')
+     file.write('\n'+id)
      file.close()
-
 
 def quantumcompute(qc, backendname="ibm_brisbane"):
     #Set up service and backend (This part only needs to be run once if doing multiple runs)
@@ -51,7 +54,8 @@ def quantumcompute(qc, backendname="ibm_brisbane"):
 
 
 
-
+def measureall(qc):
+     qc.measure(list(range(qc.num_clbits)),list(range(qc.num_clbits)))
 
 
 
