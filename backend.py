@@ -4,6 +4,11 @@ from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2
 from qiskit_ibm_runtime.exceptions import RuntimeJobTimeoutError
 from math import log, ceil
 from qiskit import QuantumCircuit
+
+service = QiskitRuntimeService()
+
+
+
 def simulate(qc):
     job = AerSimulator().run(qc) #a AerJob object
 
@@ -30,21 +35,20 @@ def saveid(job):
      file.write('\n'+id)
      file.close()
 
-def quantumcompute(qc, backendname="ibm_brisbane"):
-    #Set up service and backend (This part only needs to be run once if doing multiple runs)
-    service = QiskitRuntimeService()
+#Warning - can dramatically increase gate counts
+def compilecircuit(qc, backendname="ibm_kyiv"):
     backend = service.backend(backendname)
-
-    #Compile your circuit - can dramatically increase gate counts
     pm = generate_preset_pass_manager(backend=backend, optimization_level=1)
     compiled = pm.run(qc)
-    print(compiled.draw())
+    return compiled
 
-    #Actually run the circuit, use Sampler to get the measurement results
+
+def quantumcompute(qc, backendname="ibm_kyiv"):
+    backend = service.backend(backendname)
+
     sampler = SamplerV2(backend)
-    job = sampler.run([compiled])
+    job = sampler.run([qc])
     
-    #Okay, you should be able to figure this out
     print("Your job has been submitted to the cloud")
     print("Find id on the ibm website, job id",job.job_id())
     saveid(job)

@@ -1,7 +1,7 @@
 from backend import  seejobresults, printcounts, tobinstring
 import matplotlib.pyplot as plt
 
-print('Loading...')
+print('Loading most recent job...')
 id = open('LastJobId.txt').read().split('\n')[-1]
 try:
     lastresults = seejobresults(id)
@@ -35,20 +35,22 @@ def qubitresults():
 
 wordstofuncs = {'list':listresults, 'graph':graphresults,'qubit':qubitresults}
 
+def handleinput(inp):
+    if inp == '':
+        print('Invalid command')
+    elif inp in wordstofuncs:
+        wordstofuncs[inp]()
+    else:
+        valid = False
+        for i in wordstofuncs.keys():
+            if i[0] == inp[0]:
+                valid = True
+                wordstofuncs[i]()
+        if not valid:
+            print("Invalid command")
 
 
 
 inp = input("Choose visualization: List, Graph, Qubit: ").lower().strip()
-if inp == '':
-    print('Invalid command')
-elif inp in wordstofuncs:
-    wordstofuncs[inp]()
-else:
-    valid = False
-    for i in wordstofuncs.keys():
-        if i[0] == inp[0]:
-            valid = True
-            wordstofuncs[i]()
-    if not valid:
-        print("Invalid command")
 
+handleinput(inp) 
